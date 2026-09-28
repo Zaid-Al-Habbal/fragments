@@ -5,7 +5,7 @@ export const template = Template()
   .aptInstall(['curl', 'git']) // required for waitForPort()
   .setWorkdir('/home/user/vue-app')
   .runCmd(
-    'npx nuxi@latest init . --packageManager=npm --gitInit=no -f --modules tailwindcss',
+    'npx nuxi@latest init . --packageManager=npm --gitInit=no -f --template v3 --modules tailwindcss',
   )
   .copy('nuxt.config.ts', 'nuxt.config.ts')
   .setWorkdir('/home/user')

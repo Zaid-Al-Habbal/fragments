@@ -5,6 +5,7 @@ export const template = Template()
   .aptInstall('curl') // required for waitForPort()
   .pipInstall([
     'gradio',
+    'huggingface_hub==0.36.2',
     'pandas',
     'numpy',
     'matplotlib',
