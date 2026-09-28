@@ -25,6 +25,16 @@ export type LLMModelConfig = {
   maxTokens?: number
 }
 
+export function getDefaultMode(model: LLMModel): 'auto' | 'json' | 'tool' {
+  const { providerId } = model
+
+  if (providerId === 'deepseek') {
+    return 'json'
+  }
+
+  return 'auto'
+}
+
 export function getModelClient(model: LLMModel, config: LLMModelConfig) {
   const { id: modelNameString, providerId } = model
   const { apiKey, baseURL } = config

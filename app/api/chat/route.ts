@@ -1,6 +1,11 @@
 import { handleAPIError, createRateLimitResponse } from '@/lib/api-errors'
 import { Duration } from '@/lib/duration'
-import { getModelClient, LLMModel, LLMModelConfig } from '@/lib/models'
+import {
+  getDefaultMode,
+  getModelClient,
+  LLMModel,
+  LLMModelConfig,
+} from '@/lib/models'
 import { toPrompt } from '@/lib/prompt'
 import ratelimit from '@/lib/ratelimit'
 import { fragmentSchema as schema } from '@/lib/schema'
@@ -62,6 +67,7 @@ export async function POST(req: Request) {
       messages,
       maxRetries: 0, // do not retry on errors
       ...modelParams,
+      mode: getDefaultMode(model),
     })
 
     return stream.toTextStreamResponse()

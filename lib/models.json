@@ -183,17 +183,17 @@
       "multiModal": true
     },
     {
-      "id": "models/gemini-2.5-flash-preview-05-20",
+      "id": "models/gemini-3.8-flash",
       "provider": "Google Generative AI",
       "providerId": "google",
-      "name": "Gemini 2.5 Flash Preview 05-20",
+      "name": "Gemini 3.8 Flash",
       "multiModal": true
     },
     {
-      "id": "models/gemini-2.5-pro-preview-05-06",
+      "id": "models/gemini-3.5-flash",
       "provider": "Google Generative AI",
       "providerId": "google",
-      "name": "Gemini 2.5 Pro Preview 05-06",
+      "name": "Gemini 3.5 Flash",
       "multiModal": true
     },
     {
@@ -204,10 +204,10 @@
       "multiModal": true
     },
     {
-      "id": "models/gemini-2.0-flash-lite",
+      "id": "models/gemini-2.5-flash",
       "provider": "Google Generative AI",
       "providerId": "google",
-      "name": "Gemini 2.0 Flash Lite",
+      "name": "Gemini 2.5 Flash",
       "multiModal": true
     },
     {
@@ -428,10 +428,10 @@
       "multiModal": false
     },
     {
-      "id": "deepseek-chat",
+      "id": "deepseek-flash",
       "provider": "DeepSeek",
       "providerId": "deepseek",
-      "name": "DeepSeek V3",
+      "name": "DeepSeek Flash V4",
       "multiModal": false
     },
     {
