@@ -1,8 +1,8 @@
-import { Message } from '@/lib/messages'
+import { Message, formatSelectionLocation } from '@/lib/messages'
 import { FragmentSchema } from '@/lib/schema'
 import { ExecutionResult } from '@/lib/types'
 import { DeepPartial } from 'ai'
-import { LoaderIcon, Terminal } from 'lucide-react'
+import { FileCode2, LoaderIcon, Terminal } from 'lucide-react'
 import { useEffect } from 'react'
 
 export function Chat({
@@ -46,6 +46,26 @@ export function Chat({
                   alt="fragment"
                   className="mr-2 inline-block w-12 h-12 object-cover rounded-lg bg-white mb-2"
                 />
+              )
+            }
+            if (content.type === 'selection') {
+              const location = formatSelectionLocation(content)
+              return (
+                <div
+                  key={id}
+                  className="w-full min-w-0 rounded-lg border bg-background/70 px-2 py-1.5 font-sans"
+                >
+                  <div className="mb-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <FileCode2 className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate font-medium text-foreground">
+                      {content.filePath || 'selection'}
+                    </span>
+                    {location && <span className="shrink-0">· {location}</span>}
+                  </div>
+                  <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words rounded bg-muted/50 p-1.5 font-mono text-[11px] leading-snug">
+                    {content.text}
+                  </pre>
+                </div>
               )
             }
           })}

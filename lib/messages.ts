@@ -66,11 +66,25 @@ function getSelectionFence(text: string) {
   return '`'.repeat(Math.max(3, longestRun + 1))
 }
 
+/**
+ * Human-readable location of a selection, e.g. "lines 12-18" or "line 4".
+ * Returns an empty string when line information is unavailable.
+ */
+export function formatSelectionLocation(selection: MessageSelection) {
+  const { startLine, endLine } = selection
+
+  if (!startLine || !endLine) {
+    return ''
+  }
+
+  return startLine === endLine
+    ? `line ${startLine}`
+    : `lines ${startLine}-${endLine}`
+}
+
 export function formatSelectionContext(selection: MessageSelection) {
-  const lineInfo =
-    selection.startLine && selection.endLine
-      ? ` (lines ${selection.startLine}-${selection.endLine})`
-      : ''
+  const location = formatSelectionLocation(selection)
+  const lineInfo = location ? ` (${location})` : ''
   const language = getSelectionLanguage(selection.filePath)
   const fence = getSelectionFence(selection.text)
 

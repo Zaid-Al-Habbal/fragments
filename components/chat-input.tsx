@@ -8,8 +8,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { MessageSelection, formatSelectionLocation } from '@/lib/messages'
 import { isFileInArray } from '@/lib/utils'
-import { ArrowUp, Paperclip, Square, X } from 'lucide-react'
+import { ArrowUp, FileCode2, Paperclip, Square, X } from 'lucide-react'
 import { SetStateAction, useEffect, useMemo, useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 
@@ -26,6 +27,8 @@ export function ChatInput({
   isMultiModal,
   files,
   handleFileChange,
+  selection,
+  onClearSelection,
   children,
 }: {
   retry: () => void
@@ -40,6 +43,8 @@ export function ChatInput({
   isMultiModal: boolean
   files: File[]
   handleFileChange: (change: SetStateAction<File[]>) => void
+  selection?: MessageSelection | null
+  onClearSelection?: () => void
   children: React.ReactNode
 }) {
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
@@ -126,6 +131,13 @@ export function ChatInput({
     })
   }, [files])
 
+  const selectionLocation = selection ? formatSelectionLocation(selection) : ''
+  const normalizedSelection = selection?.text.replace(/\s+/g, ' ').trim() ?? ''
+  const selectionPreview =
+    normalizedSelection.length > 120
+      ? `${normalizedSelection.slice(0, 120)}…`
+      : normalizedSelection
+
   function onEnter(e: React.KeyboardEvent<HTMLFormElement>) {
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
@@ -182,6 +194,41 @@ export function ChatInput({
           }`}
         >
           <div className="flex items-center px-3 py-2 gap-1">{children}</div>
+          {selection && (
+            <div className="mx-3 mb-1 rounded-lg border border-dashed bg-muted/50 px-2 py-1.5">
+              <div className="flex items-center gap-1.5">
+                <FileCode2 className="h-3.5 w-3.5 shrink-0 text-[#FF8800]" />
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Selection attached
+                </span>
+                <span className="flex-1" />
+                {onClearSelection && (
+                  <button
+                    type="button"
+                    onClick={onClearSelection}
+                    aria-label="Remove attached code selection"
+                    className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <div className="mt-0.5 truncate text-xs">
+                <span className="font-medium">
+                  {selection.filePath || 'selection'}
+                </span>
+                {selectionLocation && (
+                  <span className="text-muted-foreground">
+                    {' '}
+                    · {selectionLocation}
+                  </span>
+                )}
+              </div>
+              <div className="truncate font-mono text-[11px] text-muted-foreground">
+                {selectionPreview}
+              </div>
+            </div>
+          )}
           <TextareaAutosize
             autoFocus={true}
             minRows={1}

@@ -340,6 +340,8 @@ export default function Home() {
             isMultiModal={currentModel?.multiModal || false}
             files={files}
             handleFileChange={handleFileChange}
+            selection={selection}
+            onClearSelection={() => setSelection(null)}
           >
             <ChatPicker
               templates={templates}

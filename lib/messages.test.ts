@@ -1,6 +1,7 @@
 import {
   MAX_SELECTION_CHARS,
   formatSelectionContext,
+  formatSelectionLocation,
   toAISDKMessages,
   type Message,
   type MessageSelection,
@@ -22,12 +23,54 @@ describe('MAX_SELECTION_CHARS', () => {
   })
 })
 
+describe('formatSelectionLocation', () => {
+  it('formats a multi-line range', () => {
+    assert.equal(formatSelectionLocation(baseSelection), 'lines 3-5')
+  })
+
+  it('formats a single line without a range', () => {
+    assert.equal(
+      formatSelectionLocation({ ...baseSelection, startLine: 4, endLine: 4 }),
+      'line 4',
+    )
+  })
+
+  it('returns an empty string when line information is missing', () => {
+    assert.equal(
+      formatSelectionLocation({
+        ...baseSelection,
+        startLine: undefined,
+        endLine: undefined,
+      }),
+      '',
+    )
+    assert.equal(
+      formatSelectionLocation({
+        ...baseSelection,
+        startLine: 3,
+        endLine: undefined,
+      }),
+      '',
+    )
+  })
+})
+
 describe('formatSelectionContext', () => {
   it('includes the file path, line range and a fenced snippet', () => {
     const result = formatSelectionContext(baseSelection)
 
     assert.match(result, /`src\/index\.ts` \(lines 3-5\)/)
     assert.match(result, /```typescript\nconst answer = 42\n```/)
+  })
+
+  it('renders a single-line selection as "line N"', () => {
+    const result = formatSelectionContext({
+      ...baseSelection,
+      startLine: 7,
+      endLine: 7,
+    })
+
+    assert.match(result, /`src\/index\.ts` \(line 7\)/)
   })
 
   it('omits line information when line numbers are missing', () => {
