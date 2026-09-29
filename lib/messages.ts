@@ -1,6 +1,9 @@
-import { FragmentSchema } from './schema'
-import { ExecutionResult } from './types'
-import { DeepPartial } from 'ai'
+import type { FragmentSchema } from './schema'
+import type { ExecutionResult } from './types'
+import type { DeepPartial } from 'ai'
+
+// Maximum number of characters allowed in a single attached code selection.
+export const MAX_SELECTION_CHARS = 8000
 
 export type MessageText = {
   type: 'text'
@@ -17,11 +20,61 @@ export type MessageImage = {
   image: string
 }
 
+export type MessageSelection = {
+  type: 'selection'
+  text: string
+  filePath: string
+  startLine?: number
+  endLine?: number
+}
+
 export type Message = {
   role: 'assistant' | 'user'
-  content: Array<MessageText | MessageCode | MessageImage>
+  content: Array<MessageText | MessageCode | MessageImage | MessageSelection>
   object?: DeepPartial<FragmentSchema>
   result?: ExecutionResult
+}
+
+const LANGUAGE_BY_EXTENSION: Record<string, string> = {
+  ts: 'typescript',
+  tsx: 'tsx',
+  js: 'javascript',
+  jsx: 'jsx',
+  py: 'python',
+  vue: 'vue',
+  json: 'json',
+  html: 'html',
+  css: 'css',
+  md: 'markdown',
+  sh: 'bash',
+  yml: 'yaml',
+  yaml: 'yaml',
+}
+
+function getSelectionLanguage(filePath: string) {
+  const extension = filePath.split('.').pop()?.toLowerCase() ?? ''
+  return LANGUAGE_BY_EXTENSION[extension] ?? ''
+}
+
+// Build a markdown code fence that is longer than any run of backticks inside
+// the snippet, so the selected code can never accidentally close the fence.
+function getSelectionFence(text: string) {
+  const longestRun = (text.match(/`+/g) ?? []).reduce(
+    (longest, run) => Math.max(longest, run.length),
+    0,
+  )
+  return '`'.repeat(Math.max(3, longestRun + 1))
+}
+
+export function formatSelectionContext(selection: MessageSelection) {
+  const lineInfo =
+    selection.startLine && selection.endLine
+      ? ` (lines ${selection.startLine}-${selection.endLine})`
+      : ''
+  const language = getSelectionLanguage(selection.filePath)
+  const fence = getSelectionFence(selection.text)
+
+  return `The user selected the following code from \`${selection.filePath}\`${lineInfo} as context:\n\n${fence}${language}\n${selection.text}\n${fence}`
 }
 
 export function toAISDKMessages(messages: Message[]) {
@@ -32,6 +85,13 @@ export function toAISDKMessages(messages: Message[]) {
         return {
           type: 'text',
           text: content.text,
+        }
+      }
+
+      if (content.type === 'selection') {
+        return {
+          type: 'text',
+          text: formatSelectionContext(content),
         }
       }
 
