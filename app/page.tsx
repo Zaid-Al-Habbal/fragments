@@ -9,7 +9,12 @@ import { ChatSettings } from '@/components/chat-settings'
 import { NavBar } from '@/components/navbar'
 import { Preview } from '@/components/preview'
 import { useAuth } from '@/lib/auth'
-import { Message, toAISDKMessages, toMessageImage } from '@/lib/messages'
+import {
+  Message,
+  MessageSelection,
+  toAISDKMessages,
+  toMessageImage,
+} from '@/lib/messages'
 import { LLMModelConfig } from '@/lib/models'
 import modelsList from '@/lib/models.json'
 import { FragmentSchema, fragmentSchema as schema } from '@/lib/schema'
@@ -25,9 +30,7 @@ import { useLocalStorage } from 'usehooks-ts'
 export default function Home() {
   const [chatInput, setChatInput] = useLocalStorage('chat', '')
   const [files, setFiles] = useState<File[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<string>(
-    'auto',
-  )
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('auto')
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
     'languageModel',
     {
@@ -40,6 +43,7 @@ export default function Home() {
   const [result, setResult] = useState<ExecutionResult>()
   const [messages, setMessages] = useState<Message[]>([])
   const [fragment, setFragment] = useState<DeepPartial<FragmentSchema>>()
+  const [selection, setSelection] = useState<MessageSelection | null>(null)
   const [currentTab, setCurrentTab] = useState<'code' | 'fragment'>('code')
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
   const [isAuthDialogOpen, setAuthDialog] = useState(false)
@@ -59,17 +63,20 @@ export default function Home() {
     return true
   })
 
-  const defaultModel = filteredModels.find(
-    (model) => model.id === 'claude-sonnet-4-20250514',
-  ) || filteredModels[0]
+  const defaultModel =
+    filteredModels.find((model) => model.id === 'claude-sonnet-4-20250514') ||
+    filteredModels[0]
 
-  const currentModel = filteredModels.find(
-    (model) => model.id === languageModel.model,
-  ) || defaultModel
+  const currentModel =
+    filteredModels.find((model) => model.id === languageModel.model) ||
+    defaultModel
 
   // Update localStorage if stored model no longer exists
   useEffect(() => {
-    if (languageModel.model && !filteredModels.find((m) => m.id === languageModel.model)) {
+    if (
+      languageModel.model &&
+      !filteredModels.find((m) => m.id === languageModel.model)
+    ) {
       setLanguageModel({ ...languageModel, model: defaultModel.id })
     }
   }, [languageModel.model])
@@ -179,7 +186,11 @@ export default function Home() {
       stop()
     }
 
-    const content: Message['content'] = [{ type: 'text', text: chatInput }]
+    // The attached code selection, when present, is sent as context before the
+    // user's instruction so the model knows exactly what "this" refers to.
+    const content: Message['content'] = selection ? [selection] : []
+    content.push({ type: 'text', text: chatInput })
+
     const images = await toMessageImage(files)
 
     if (images.length > 0) {
@@ -205,6 +216,7 @@ export default function Home() {
 
     setChatInput('')
     setFiles([])
+    setSelection(null)
     setCurrentTab('code')
 
     posthog.capture('chat_submit', {
@@ -264,6 +276,7 @@ export default function Home() {
     stop()
     setChatInput('')
     setFiles([])
+    setSelection(null)
     setMessages([])
     setFragment(undefined)
     setResult(undefined)
@@ -281,6 +294,7 @@ export default function Home() {
 
   function handleUndo() {
     setMessages((previousMessages) => [...previousMessages.slice(0, -2)])
+    setSelection(null)
     setCurrentPreview({ fragment: undefined, result: undefined })
   }
 
@@ -355,6 +369,7 @@ export default function Home() {
           fragment={fragment}
           result={result as ExecutionResult}
           onClose={() => setFragment(undefined)}
+          onAttachSelection={setSelection}
         />
       </div>
     </main>
