@@ -7,13 +7,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { MessageSelection } from '@/lib/messages'
 import { Download, FileText } from 'lucide-react'
 import { useState } from 'react'
 
 export function FragmentCode({
   files,
+  onAttachSelection,
 }: {
   files: { name: string; content: string }[]
+  onAttachSelection?: (selection: MessageSelection) => void
 }) {
   const [currentFile, setCurrentFile] = useState(files[0].name)
   const currentFileContent = files.find(
@@ -85,6 +88,8 @@ export function FragmentCode({
         <CodeView
           code={currentFileContent || ''}
           lang={currentFile.split('.').pop() || ''}
+          filePath={currentFile}
+          onAttachSelection={onAttachSelection}
         />
       </div>
     </div>

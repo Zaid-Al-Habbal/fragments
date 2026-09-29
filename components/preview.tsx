@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { MessageSelection } from '@/lib/messages'
 import { FragmentSchema } from '@/lib/schema'
 import { getTemplateId } from '@/lib/templates'
 import { ExecutionResult, ExecutionResultWeb } from '@/lib/types'
@@ -26,6 +27,7 @@ export function Preview({
   fragment,
   result,
   onClose,
+  onAttachSelection,
 }: {
   teamID: string | undefined
   accessToken: string | undefined
@@ -36,6 +38,7 @@ export function Preview({
   fragment?: DeepPartial<FragmentSchema>
   result?: ExecutionResult
   onClose: () => void
+  onAttachSelection?: (selection: MessageSelection) => void
 }) {
   if (!fragment) {
     return null
@@ -123,6 +126,7 @@ export function Preview({
                       content: fragment.code,
                     },
                   ]}
+                  onAttachSelection={onAttachSelection}
                 />
               )}
             </TabsContent>
