@@ -56,8 +56,6 @@ function getSelectionLanguage(filePath: string) {
   return LANGUAGE_BY_EXTENSION[extension] ?? ''
 }
 
-// Build a markdown code fence that is longer than any run of backticks inside
-// the snippet, so the selected code can never accidentally close the fence.
 function getSelectionFence(text: string) {
   const longestRun = (text.match(/`+/g) ?? []).reduce(
     (longest, run) => Math.max(longest, run.length),
@@ -66,10 +64,6 @@ function getSelectionFence(text: string) {
   return '`'.repeat(Math.max(3, longestRun + 1))
 }
 
-/**
- * Human-readable location of a selection, e.g. "lines 12-18" or "line 4".
- * Returns an empty string when line information is unavailable.
- */
 export function formatSelectionLocation(selection: MessageSelection) {
   const { startLine, endLine } = selection
 

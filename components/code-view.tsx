@@ -1,7 +1,5 @@
 'use client'
 
-// import "prismjs/plugins/line-numbers/prism-line-numbers.js";
-// import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import './code-theme.css'
 import { useToast } from '@/components/ui/use-toast'
 import { MAX_SELECTION_CHARS, type MessageSelection } from '@/lib/messages'
@@ -25,8 +23,6 @@ type PendingSelection = {
 const BUTTON_HEIGHT = 32
 const BUTTON_WIDTH = 160
 
-// Counts the 1-based line number of a position inside the code element by
-// measuring the text between the start of the block and that position.
 function getLineNumber(node: Node, offset: number, container: HTMLElement) {
   const range = document.createRange()
   range.setStart(container, 0)
